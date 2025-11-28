@@ -65,6 +65,41 @@ public class controller_HoaDon {
         }
         return -1;
     }
+        public HoaDon addHoaDon2 (HoaDon hd) {
+        String sql = "INSERT INTO Tbl_HoaDon (MAKH, THANHTOAN, TRANGTHAI, NGAYLAPHOADON, GHICHU) " +
+                     "OUTPUT INSERTED.MAHOADON, INSERTED.MAKH, INSERTED.THANHTOAN, INSERTED.TRANGTHAI, " +
+                     "INSERTED.NGAYLAPHOADON, INSERTED.GHICHU " +
+                     "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection sqlconn = ConnectDB.getConnect();
+             PreparedStatement prest = sqlconn.prepareStatement(sql)) {
+
+            prest.setInt(1, hd.getMaKH());
+            prest.setInt(2, hd.getThanhToan());
+            prest.setInt(3, hd.getTrangThai());
+            prest.setDate(4, new java.sql.Date(hd.getNgayLapHoaDon().getTime()));
+            prest.setString(5, hd.getGhiChu());
+
+            ResultSet rs = prest.executeQuery();
+
+            if (rs.next()) {
+                HoaDon newHD = new HoaDon(
+                    rs.getInt("MAHOADON"),
+                    rs.getInt("MAKH"),
+                    rs.getInt("THANHTOAN"),
+                    rs.getInt("TRANGTHAI"),
+                    rs.getDate("NGAYLAPHOADON"),
+                    rs.getString("GHICHU"),
+                    hd.getTenKH()  // hoặc lấy từ DB nếu bạn có cột này
+                );
+                return newHD;
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error : " + e.getMessage());
+        }
+        return null;
+    }
+
     
     // Sửa hóa đơn
     public boolean updateHoaDon(HoaDon hd) {
