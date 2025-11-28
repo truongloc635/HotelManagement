@@ -1,0 +1,25 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+*.tmp
+
+# NetBeans build
+/build/
+/dist/
+/nbproject/private/
+
+# IDE files
+*.idea/
+*.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Output folders
+bin/
+out/

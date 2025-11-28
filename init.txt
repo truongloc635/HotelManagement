@@ -1,0 +1,128 @@
+/* ============================================
+   INIT DATABASE SCRIPT - QUAN LY KHACH SAN
+   Optimized version (DROP → CREATE → FK)
+============================================ */
+
+---------------------------------------------
+-- OPTIONAL: chọn database của bạn
+---------------------------------------------
+-- USE QuanLyKhachSan;
+-- GO
+
+/* ============================================
+   1. DROP TABLE (bảng con trước → bảng cha)
+============================================ */
+IF OBJECT_ID('dbo.Tbl_ChiTietDichVu', 'U') IS NOT NULL DROP TABLE dbo.Tbl_ChiTietDichVu;
+IF OBJECT_ID('dbo.Tbl_DatPhong', 'U') IS NOT NULL DROP TABLE dbo.Tbl_DatPhong;
+IF OBJECT_ID('dbo.Tbl_HoaDon', 'U') IS NOT NULL DROP TABLE dbo.Tbl_HoaDon;
+IF OBJECT_ID('dbo.Tbl_DichVu', 'U') IS NOT NULL DROP TABLE dbo.Tbl_DichVu;
+IF OBJECT_ID('dbo.Tbl_KhachHang', 'U') IS NOT NULL DROP TABLE dbo.Tbl_KhachHang;
+IF OBJECT_ID('dbo.Tbl_Phong', 'U') IS NOT NULL DROP TABLE dbo.Tbl_Phong;
+IF OBJECT_ID('dbo.Tbl_TaiKhoan', 'U') IS NOT NULL DROP TABLE dbo.Tbl_TaiKhoan;
+GO
+
+/* ============================================
+   2. CREATE TABLE (bảng cha trước → bảng con)
+============================================ */
+
+-- TAI KHOAN
+CREATE TABLE dbo.Tbl_TaiKhoan (
+    TAIKHOAN   VARCHAR(50)  NOT NULL,
+    MATKHAU    VARCHAR(100) NOT NULL,
+    QUYEN      INT          NOT NULL
+);
+GO
+
+-- PHONG
+CREATE TABLE dbo.Tbl_Phong (
+    MAPHONG   INT IDENTITY(100,1) NOT NULL,
+    TENPHONG  VARCHAR(50)         NOT NULL,
+    GIAPHONG  INT                 NOT NULL,
+    CONSTRAINT PK_Tbl_Phong PRIMARY KEY (MAPHONG)
+);
+GO
+
+-- KHACH HANG
+CREATE TABLE dbo.Tbl_KhachHang (
+    MAKH     INT IDENTITY(100,1) NOT NULL,
+    TENKH    VARCHAR(100)        NOT NULL,
+    SODT     VARCHAR(15)         NOT NULL,
+    CCCD     VARCHAR(20)         NOT NULL,
+    EMAIL    VARCHAR(50)         NOT NULL,
+    DIACHI   VARCHAR(50)         NOT NULL,
+    CONSTRAINT PK_Tbl_KhachHang PRIMARY KEY (MAKH)
+);
+GO
+
+-- HOA DON
+CREATE TABLE dbo.Tbl_HoaDon (
+    MAHOADON      INT IDENTITY(100,1) NOT NULL,
+    MAKH          INT                 NOT NULL,
+    THANHTOAN     INT                 NOT NULL,
+    TRANGTHAI     INT                 NOT NULL,
+    NGAYLAPHOADON DATE                NOT NULL,
+    GHICHU        VARCHAR(500)        NULL,
+    CONSTRAINT PK_Tbl_HoaDon PRIMARY KEY (MAHOADON)
+);
+GO
+
+-- DICH VU
+CREATE TABLE dbo.Tbl_DichVu (
+    MADICHVU   INT IDENTITY(100,1) NOT NULL,
+    TENDICHVU  VARCHAR(100)        NOT NULL,
+    GIADICHVU  INT                 NOT NULL,
+    CONSTRAINT PK_Tbl_DichVu PRIMARY KEY (MADICHVU)
+);
+GO
+
+-- DAT PHONG
+CREATE TABLE dbo.Tbl_DatPhong (
+    MAHOADON       INT  NOT NULL,
+    MAPHONG        INT  NOT NULL,
+    NGAYNHANPHONG  DATE NOT NULL,
+    NGAYTRAPHONG   DATE NOT NULL,
+    SONGAYLUUTRU   INT  NOT NULL,
+    GIAPHONGHT     INT  NOT NULL,
+    TIENPHONGHT    INT  NOT NULL,
+    CONSTRAINT PK_Tbl_DatPhong PRIMARY KEY (MAHOADON, MAPHONG)
+);
+GO
+
+-- CHI TIET DICH VU
+CREATE TABLE dbo.Tbl_ChiTietDichVu (
+    MAHOADON      INT NOT NULL,
+    MADICHVU      INT NOT NULL,
+    GIADICHVUHT   INT NOT NULL,
+    CONSTRAINT PK_Tbl_ChiTietDichVu PRIMARY KEY (MAHOADON, MADICHVU)
+);
+GO
+
+/* ============================================
+   3. ADD FOREIGN KEY
+============================================ */
+
+-- ChiTietDichVu → DichVu
+ALTER TABLE dbo.Tbl_ChiTietDichVu
+ADD CONSTRAINT FK_Tbl_ChiTietDichVu_Tbl_DichVu
+FOREIGN KEY (MADICHVU) REFERENCES dbo.Tbl_DichVu(MADICHVU);
+
+-- ChiTietDichVu → HoaDon
+ALTER TABLE dbo.Tbl_ChiTietDichVu
+ADD CONSTRAINT FK_Tbl_ChiTietDichVu_Tbl_HoaDon
+FOREIGN KEY (MAHOADON) REFERENCES dbo.Tbl_HoaDon(MAHOADON);
+
+-- DatPhong → HoaDon
+ALTER TABLE dbo.Tbl_DatPhong
+ADD CONSTRAINT FK_Tbl_DatPhong_Tbl_HoaDon
+FOREIGN KEY (MAHOADON) REFERENCES dbo.Tbl_HoaDon(MAHOADON);
+
+-- DatPhong → Phong
+ALTER TABLE dbo.Tbl_DatPhong
+ADD CONSTRAINT FK_Tbl_DatPhong_Tbl_Phong
+FOREIGN KEY (MAPHONG) REFERENCES dbo.Tbl_Phong(MAPHONG);
+
+-- HoaDon → KhachHang
+ALTER TABLE dbo.Tbl_HoaDon
+ADD CONSTRAINT FK_Tbl_HoaDon_Tbl_KhachHang1
+FOREIGN KEY (MAKH) REFERENCES dbo.Tbl_KhachHang(MAKH);
+GO
